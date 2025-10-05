@@ -8,14 +8,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HundredX.API.IntegrationTests", "HundredX.API.IntegrationTests\HundredX.API.IntegrationTests.csproj", "{A80D76FB-1B72-44E1-A111-A2E2F1E408ED}"
 EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
+  GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|Mixed Platforms = Debug|Mixed Platforms
+    Release|Mixed Platforms = Release|Mixed Platforms
+  EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AE0DA5AC-EECC-4EEA-8977-EE025B06DB2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE0DA5AC-EECC-4EEA-8977-EE025B06DB2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
