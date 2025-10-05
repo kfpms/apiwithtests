@@ -64,17 +64,14 @@ jobs:
 
     # Run Tests
     - name: Run Integration Tests
-      run: |
-        cd bin/API.Tests
-        dotnet vstest HundredX.API.IntegrationTests.dll --logger:trx --ResultsDirectory:TestResults
+      run: dotnet test "HundredX.API.IntegrationTests/HundredX.API.IntegrationTests.csproj" -c Release --logger:"trx;LogFileName=TestResults.trx" --results-directory bin/TestResults
 
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: TestResults
-        path: bin/API.Tests/TestResults/
-
+        path: bin/TestResults
 
     # Publish and upload console 
     - name: Publish consoleapp1
