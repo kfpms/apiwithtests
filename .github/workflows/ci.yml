@@ -41,7 +41,7 @@ jobs:
 
     # Build the solution
     - name: Build Solution
-      run: msbuild TestAPI.sln /P:Configuration=Release /P:Platform="Mixed Platforms" /T:Restore /T:Build /V:m
+      run: msbuild HundredX.sln /P:Configuration=Release /P:Platform="Mixed Platforms" /T:Restore /T:Build /V:m
 
     # Publish and upload HundredX.API and HundredX.API.IntegrationTests projects
     - name: Publish HundredX.API
@@ -60,7 +60,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: HundredX.API.IntegrationTests
-        path: bin/API.IntegrationTests/
+        path: bin/API.Tests/
 
     # Run Tests
 
