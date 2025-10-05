@@ -1,0 +1,15 @@
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\bin\Debug\net9.0\consoleapp1.exe
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\bin\Debug\net9.0\consoleapp1.deps.json
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\bin\Debug\net9.0\consoleapp1.runtimeconfig.json
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\bin\Debug\net9.0\consoleapp1.dll
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\bin\Debug\net9.0\consoleapp1.pdb
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.AssemblyInfoInputs.cache
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.AssemblyInfo.cs
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.csproj.CoreCompileInputs.cache
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.sourcelink.json
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.dll
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\refint\consoleapp1.dll
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.pdb
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\consoleapp1.genruntimeconfig.cache
+C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\consoleapp1\obj\Debug\net9.0\ref\consoleapp1.dll
