@@ -54,7 +54,7 @@ jobs:
         path: bin/API/
 
     - name: Publish HundredX.API.IntegrationTests
-      run: msbuild "HundredX.API.IntegrationTests\HundredX.API.IntegrationTests.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\API.IntegrationTests" /P:SelfContained=false /R /T:Build /T:Publish /V:m
+      run: msbuild "HundredX.API.IntegrationTests\HundredX.API.IntegrationTests.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\API.Tests" /P:SelfContained=false /R /T:Build /T:Publish /V:m
 
     - name: Upload HundredX.API.IntegrationTests
       uses: actions/upload-artifact@v4
@@ -64,7 +64,7 @@ jobs:
 
     # Run Tests
 
-    # Publish and upload WinForms app and HundredX.API.IntegrationTests projects
+    # Publish and upload console 
     - name: Publish consoleapp1
       run: msbuild "consoleapp1\consoleapp1.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\consoleapp1" /P:SelfContained=false /R /T:Build /T:Publish /V:m
 
