@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/HundredX.API.props" />
+</Project>
