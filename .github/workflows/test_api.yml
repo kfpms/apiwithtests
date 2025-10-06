@@ -12,13 +12,11 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      # Hotfix: force correct content root on Linux
+      # Optional: keep for libs that honor it
       ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
 
-      # App/test connection string (DB name = hundredx)
+      # DB (hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
-
-      # psql convenience
       PGUSER: postgres
       PGPASSWORD: postgres
       PGDATABASE: hundredx
@@ -70,11 +68,19 @@ jobs:
       - name: Build (Release)
         run: dotnet build HundredX.sln -c Release --no-restore
 
-      # Sanity check for the hotfix path
-      - name: Verify content root
+      # 🔧 Hotfix: create a shim for the hardcoded Windows path inside the test bin folder
+      - name: Windows-path shim for content root
+        working-directory: ./HundredX.API.IntegrationTests
         run: |
-          echo "ASPNETCORE_CONTENTROOT=$ASPNETCORE_CONTENTROOT"
-          test -d "$ASPNETCORE_CONTENTROOT" || { echo "Content root not found"; ls -la "${{ github.workspace }}"; exit 1; }
+          BIN_DIR="$(pwd)/bin/Release/net8.0"
+          WIN_PATH='C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\HundredX.API'
+          SHIM_DIR="$BIN_DIR/$WIN_PATH"
+          # Make parent dirs, then replace with a symlink to the real API project
+          mkdir -p "$SHIM_DIR"
+          rmdir "$SHIM_DIR" || true
+          ln -s "$GITHUB_WORKSPACE/HundredX.API" "$SHIM_DIR"
+          echo "Created shim:"
+          ls -la "$BIN_DIR"
 
       - name: Run Integration Tests
         working-directory: ./HundredX.API.IntegrationTests
