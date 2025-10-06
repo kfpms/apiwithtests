@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      # Hotfix: force correct content root on Linux
+      ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
+
+      # DB (hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
       PGUSER: postgres
       PGPASSWORD: postgres
@@ -64,32 +68,26 @@ jobs:
       - name: Build (Release)
         run: dotnet build HundredX.sln -c Release --no-restore
 
-      # 🔧 Hotfix: create a shim for the hardcoded Windows path inside the test bin folder
-      - name: Windows-path shim for content root
-        working-directory: ./HundredX.API.IntegrationTests
+      - name: Verify content root
         run: |
-          BIN_DIR="$(pwd)/bin/Release/net8.0"
-          WIN_PATH='C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\HundredX.API'
-          SHIM_DIR="$BIN_DIR/$WIN_PATH"
-          # Make parent dirs, then replace with a symlink to the real API project
-          mkdir -p "$SHIM_DIR"
-          rmdir "$SHIM_DIR" || true
-          ln -s "$GITHUB_WORKSPACE/HundredX.API" "$SHIM_DIR"
-          echo "Created shim:"
-          ls -la "$BIN_DIR"
+          echo "ASPNETCORE_CONTENTROOT=$ASPNETCORE_CONTENTROOT"
+          test -d "$ASPNETCORE_CONTENTROOT" || { echo "Content root not found"; ls -la "${{ github.workspace }}"; exit 1; }
 
-      - name: Run Integration Tests
+      # Run tests and output HTML 
+      - name: Run Integration Tests (HTML logger)
         working-directory: ./HundredX.API.IntegrationTests
         run: |
           dotnet test HundredX.API.IntegrationTests.csproj \
             -c Release \
             --no-build \
-            --logger "trx;LogFileName=TestResults.trx" \
+            --logger "html;LogFileName=TestResults.html" \
             --results-directory bin/TestResults
 
-      - name: Upload Test Results
+      # Upload the HTML report
+      - name: Upload HTML Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TestResults
-          path: HundredX.API.IntegrationTests/bin/TestResults
+          name: TestResultsHTML
+          path: |
+            HundredX.API.IntegrationTests/bin/TestResults/**/*.html
