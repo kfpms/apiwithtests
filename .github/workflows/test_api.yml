@@ -112,7 +112,7 @@ jobs:
 
       - name: Run Integration Tests
         run: |
-          dotnet test HundredX.API.IntegrationTests.csproj \
+          dotnet test \
             -c Release \
             --no-build \
             --logger "trx;LogFileName=TestResults.trx" \
