@@ -25,13 +25,34 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      # Download ONLY the SQL artifact from the triggering run
-      - name: Download SQLScripts artifact (from CI run)
+      # Check if the triggering run actually has an artifact named "SQL"
+      - name: Find SQL artifact in triggering run
         if: github.event_name == 'workflow_run'
+        id: find_sql
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.payload.workflow_run.id;
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+              per_page: 100,
+            });
+            const preferred = data.artifacts.find(a => a.name === 'SQL');
+            const alt = data.artifacts.find(a => /sql/i.test(a.name)); // fallback if someone renamed it
+            const found = preferred || alt;
+            core.info(`Artifacts for run ${runId}: ${data.artifacts.map(a => a.name).join(', ') || '(none)'}`);
+            core.setOutput('found', found ? 'true' : 'false');
+            core.setOutput('name', found ? found.name : '');
+
+      # Download ONLY if the artifact exists
+      - name: Download SQLScripts artifact
+        if: github.event_name == 'workflow_run' && steps.find_sql.outputs.found == 'true'
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ github.event.workflow_run.id }}
-          name: SQL
+          name: ${{ steps.find_sql.outputs.name }}
           path: SQLScripts
 
       - name: Install psql client
