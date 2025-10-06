@@ -1,7 +1,7 @@
-name: Run Integration Tests
+name: Run Integration Tests (Ubuntu built-in Postgres)
 
 on:
-  # Auto-run after the "HundredX Continuous Integration" workflow completes
+  # Auto-run after your Windows CI completes successfully
   workflow_run:
     workflows: ["HundredX Continuous Integration"]
     types: [completed]
@@ -11,80 +11,65 @@ on:
 jobs:
   integration-tests:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
-    runs-on: windows-2022
+    runs-on: ubuntu-24.04
 
     env:
-      # DB settings
+      # App/test connection
+      ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
+      # psql convenience
       PGUSER: postgres
       PGPASSWORD: postgres
-      PGDB: realcloud
+      PGDATABASE: hundredx
       PGPORT: 5432
 
-      # Connection string consumed by your app/tests (Npgsql)
-      ConnectionStrings__Default: >
-        Host=localhost;Port=5432;Database=realcloud;Username=postgres;Password=postgres;Pooling=true
-
     steps:
-      - name: Checkout source (same commit as this workflow)
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
 
-      # ── Bring over artifacts from the build workflow (SQL scripts, etc.) ─────────
-      - name: Download SQLScripts artifact from build run
+      # If triggered by CI, pull your SQL scripts artifact for seeding
+      - name: Download SQLScripts artifact (from CI run)
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v4
         with:
           name: SQL
           path: SQLScripts
-          # Download from the triggering workflow run
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Ensure SQLScripts folder exists (manual runs)
-        if: github.event_name == 'workflow_dispatch'
-        shell: pwsh
+      - name: Ensure psql client is present
         run: |
-          if (-not (Test-Path SQLScripts)) {
-            New-Item -ItemType Directory -Path SQLScripts | Out-Null
-          }
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
 
-      # ── Install & start PostgreSQL natively on the Windows runner ────────────────
-      - name: Install PostgreSQL 16 (client + server)
-        shell: pwsh
+      - name: Start built-in PostgreSQL and prepare DB
         run: |
-          choco install postgresql16 --params '/Password:postgres' -y --no-progress
-          $env:Path += ";C:\Program Files\PostgreSQL\16\bin"
+          # Start the preinstalled Postgres service
+          sudo systemctl start postgresql
 
-      - name: Init & start Postgres service (ephemeral data dir)
-        shell: pwsh
-        run: |
-          $pgdata = "C:\pgdata"
-          New-Item -ItemType Directory -Force -Path $pgdata | Out-Null
-          pg_ctl initdb -D $pgdata
-          pg_ctl start -D $pgdata -l "$pgdata\logfile"
-          # wait a bit for the server to be ready
-          for ($i=0; $i -lt 30; $i++) {
-            try {
-              psql -U $env:PGUSER -d postgres -c "select 1;" | Out-Null
-              break
-            } catch { Start-Sleep -Seconds 1 }
-          }
-          createdb -U $env:PGUSER $env:PGDB
+          # Wait for server readiness
+          for i in $(seq 1 60); do
+            pg_isready -h localhost -p 5432 && break
+            sleep 1
+          done
 
-      # ── Optional: seed schema/data if your repo/artifacts include scripts ────────
+          # Set a password for the 'postgres' role so TCP auth works over localhost
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+
+          # Create the hundredx database (idempotent)
+          sudo -u postgres psql -d postgres -c "SELECT 1 FROM pg_database WHERE datname='hundredx';" | grep -q 1 \
+            || sudo -u postgres createdb hundredx
+
       - name: Seed database (if init.sql exists)
-        shell: pwsh
         run: |
-          $script = "SQLScripts\init.sql"
-          if (Test-Path $script) {
-            psql -U $env:PGUSER -d $env:PGDB -f $script
-          } else {
-            Write-Host "No SQLScripts\init.sql found; skipping seed."
-          }
+          if [ -f "SQLScripts/init.sql" ]; then
+            PGPASSWORD="$PGPASSWORD" psql -h localhost -U "$PGUSER" -d "$PGDATABASE" -f SQLScripts/init.sql
+          else
+            echo "No SQLScripts/init.sql found; skipping seed."
+          fi
 
-      # ── .NET setup & test run ───────────────────────────────────────────────────
-      - name: Install .NET 8 SDK
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -109,10 +94,3 @@ jobs:
         with:
           name: TestResults
           path: bin/TestResults
-
-      # ── Clean shutdown ──────────────────────────────────────────────────────────
-      - name: Stop PostgreSQL
-        if: always()
-        shell: pwsh
-        run: |
-          pg_ctl stop -D C:\pgdata -m fast
