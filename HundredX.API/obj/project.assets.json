@@ -2608,24 +2608,34 @@
     ]
   },
   "packageFolders": {
-    "/home/kp/.nuget/packages/": {}
+    "C:\\Users\\karlp\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/kp/workspaces/sniper2/WebAPI/HundredX.API/HundredX.API.csproj",
+      "projectUniqueName": "C:\\Users\\karlp\\workspaces\\github_workflows\\repos\\apiwithtests\\HundredX.API\\HundredX.API.csproj",
       "projectName": "HundredX.API",
-      "projectPath": "/home/kp/workspaces/sniper2/WebAPI/HundredX.API/HundredX.API.csproj",
-      "packagesPath": "/home/kp/.nuget/packages/",
-      "outputPath": "/home/kp/workspaces/sniper2/WebAPI/HundredX.API/obj/",
+      "projectPath": "C:\\Users\\karlp\\workspaces\\github_workflows\\repos\\apiwithtests\\HundredX.API\\HundredX.API.csproj",
+      "packagesPath": "C:\\Users\\karlp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\karlp\\workspaces\\github_workflows\\repos\\apiwithtests\\HundredX.API\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/kp/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\karlp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\VistaDB 6.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Gibraltar Software\\VistaDB 6\\Packages\\": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2643,7 +2653,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -2691,7 +2702,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/kp/dotnet/sdk/8.0.405/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
