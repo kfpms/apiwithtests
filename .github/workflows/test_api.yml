@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      # Optional: keep for libs that honor it
-      ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
-
-      # DB (hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
       PGUSER: postgres
       PGPASSWORD: postgres
