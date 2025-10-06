@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HundredX.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f146eb1598c5f40034ea935325ec1d421fe5f70")]
 [assembly: System.Reflection.AssemblyProductAttribute("HundredX.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HundredX.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

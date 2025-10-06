@@ -1,33 +1,21 @@
-using System.Linq;
-using HundredX.API.Data;
-using Microsoft.AspNetCore.Hosting;
+// Tests/Infrastructure/ApiFactory.cs
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace HundredX.API.Tests;
+namespace HundredX.API.IntegrationTests.Infrastructure;
 
-public class TestWebApplicationFactory : WebApplicationFactory<Program>
+public class ApiFactory : WebApplicationFactory<Program>
 {
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.ConfigureServices(services =>
-        {
-            // Remove the real DbContext registration (Npgsql)
-            var toRemove = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<HundredxContext>));
-            if (toRemove is not null)
-                services.Remove(toRemove);
-
-            // Replace with EF InMemory for tests
-            services.AddDbContext<HundredxContext>(opts =>
-                opts.UseInMemoryDatabase("hundredx-tests-" + Guid.NewGuid()));
-
-            // Ensure DB is created
-            var sp = services.BuildServiceProvider();
-            using var scope = sp.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<HundredxContext>();
-            db.Database.EnsureCreated();
-        });
-    }
+    // Optional: override configuration to set connection string from env if needed
+    // protected override void ConfigureWebHost(IWebHostBuilder builder)
+    // {
+    //     builder.ConfigureAppConfiguration((ctx, cfg) =>
+    //     {
+    //         var conn = Environment.GetEnvironmentVariable("HUNDREDX_CS");
+    //         if (!string.IsNullOrWhiteSpace(conn))
+    //             cfg.AddInMemoryCollection(new Dictionary<string,string?>
+    //             {
+    //                 ["ConnectionStrings:Hundredx"] = conn
+    //             });
+    //     });
+    // }
 }
