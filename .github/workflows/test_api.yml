@@ -12,7 +12,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      # Hotfix: force correct content root on Linux
+      ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
+
+      # App/test connection string (DB name = hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
+
+      # psql convenience
       PGUSER: postgres
       PGPASSWORD: postgres
       PGDATABASE: hundredx
@@ -63,6 +69,12 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build HundredX.sln -c Release --no-restore
+
+      # Sanity check for the hotfix path
+      - name: Verify content root
+        run: |
+          echo "ASPNETCORE_CONTENTROOT=$ASPNETCORE_CONTENTROOT"
+          test -d "$ASPNETCORE_CONTENTROOT" || { echo "Content root not found"; ls -la "${{ github.workspace }}"; exit 1; }
 
       - name: Run Integration Tests
         working-directory: ./HundredX.API.IntegrationTests
