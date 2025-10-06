@@ -1,0 +1,67 @@
+name: HundredX Continuous Integration
+
+# Triggers
+on:
+  push:
+    tags:
+     - '*'
+  pull_request:
+  workflow_dispatch:
+
+# Jobs
+jobs:
+  build:
+    runs-on: windows-2022
+      
+    # Job steps  
+    steps:    
+
+    # Checkout
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true
+
+    # Upload static files
+    - name: Upload SQL Scripts
+      uses: actions/upload-artifact@v4
+      with:
+        name: SQL
+        path: SQLScripts/
+
+    # Setup build enviroment
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    # Build the solution
+    - name: Build Solution
+      run: msbuild TestAPI.sln /P:Configuration=Release /P:Platform="Mixed Platforms" /T:Restore /T:Build /V:m
+
+    # Publish and upload HundredX.API and HundredX.API.IntegrationTests projects
+    - name: Publish HundredX.API
+      run: msbuild "HundredX.API\HundredX.API.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\API" /P:SelfContained=false /R /T:Build /T:Publish /V:m
+
+    - name: Upload HundredX.API
+      uses: actions/upload-artifact@v4
+      with:
+        name: HundredX.API
+        path: bin/API/
+
+    - name: Publish HundredX.API.IntegrationTests
+      run: msbuild "HundredX.API.IntegrationTests\HundredX.API.IntegrationTests.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\API.IntegrationTests" /P:SelfContained=false /R /T:Build /T:Publish /V:m
+
+    - name: Upload HundredX.API.IntegrationTests
+      uses: actions/upload-artifact@v4
+      with:
+        name: HundredX.API.IntegrationTests
+        path: bin/API.IntegrationTests/
+
+    # Run Tests
+
+
