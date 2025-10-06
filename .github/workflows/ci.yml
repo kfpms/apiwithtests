@@ -19,14 +19,6 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      # (Optional) sanity check so we fail fast if SQLScripts is missing/empty
-      - name: Verify SQLScripts exists and is non-empty
-        shell: pwsh
-        run: |
-          if (-not (Test-Path SQLScripts) -or (Get-ChildItem SQLScripts -Recurse | Measure-Object).Count -eq 0) {
-            Write-Host "SQLScripts/ is missing or empty. If this is expected, remove this step."
-          }
-
       # Upload static files
       - name: Upload SQL Scripts
         uses: actions/upload-artifact@v4
