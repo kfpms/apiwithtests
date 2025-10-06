@@ -115,7 +115,7 @@ jobs:
         working-directory: ./HundredX.API.IntegrationTests
         run: |
           dotnet test HundredX.API.IntegrationTests.csproj \
-            --no-build \
+            -c Release \
             --logger "trx;LogFileName=TestResults.trx" \
             --results-directory bin/TestResults
 
