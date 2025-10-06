@@ -12,10 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      # Hotfix: force correct content root on Linux
       ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
-
-      # DB (hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
       PGUSER: postgres
       PGPASSWORD: postgres
@@ -29,10 +26,12 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Install psql client
+      - name: Ensure psql client exists
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y postgresql-client
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y postgresql-client
+          fi
 
       - name: Start built-in PostgreSQL and prepare DB
         run: |
@@ -73,7 +72,7 @@ jobs:
           echo "ASPNETCORE_CONTENTROOT=$ASPNETCORE_CONTENTROOT"
           test -d "$ASPNETCORE_CONTENTROOT" || { echo "Content root not found"; ls -la "${{ github.workspace }}"; exit 1; }
 
-      # Run tests and output HTML 
+      # Run tests 
       - name: Run Integration Tests (HTML logger)
         working-directory: ./HundredX.API.IntegrationTests
         run: |
