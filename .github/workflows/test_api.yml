@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      # Optional: keep for libs that honor it
       ASPNETCORE_CONTENTROOT: ${{ github.workspace }}/HundredX.API
+
+      # DB (hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
       PGUSER: postgres
       PGPASSWORD: postgres
@@ -26,12 +29,10 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Ensure psql client exists
+      - name: Install psql client
         run: |
-          if ! command -v psql >/dev/null 2>&1; then
-            sudo apt-get update -y
-            sudo apt-get install -y postgresql-client
-          fi
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
 
       - name: Start built-in PostgreSQL and prepare DB
         run: |
@@ -67,26 +68,32 @@ jobs:
       - name: Build (Release)
         run: dotnet build HundredX.sln -c Release --no-restore
 
-      - name: Verify content root
+      # 🔧 Hotfix: create a shim for the hardcoded Windows path inside the test bin folder
+      - name: Windows-path shim for content root
+        working-directory: ./HundredX.API.IntegrationTests
         run: |
-          echo "ASPNETCORE_CONTENTROOT=$ASPNETCORE_CONTENTROOT"
-          test -d "$ASPNETCORE_CONTENTROOT" || { echo "Content root not found"; ls -la "${{ github.workspace }}"; exit 1; }
+          BIN_DIR="$(pwd)/bin/Release/net8.0"
+          WIN_PATH='C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\HundredX.API'
+          SHIM_DIR="$BIN_DIR/$WIN_PATH"
+          # Make parent dirs, then replace with a symlink to the real API project
+          mkdir -p "$SHIM_DIR"
+          rmdir "$SHIM_DIR" || true
+          ln -s "$GITHUB_WORKSPACE/HundredX.API" "$SHIM_DIR"
+          echo "Created shim:"
+          ls -la "$BIN_DIR"
 
-      # Run tests 
-      - name: Run Integration Tests (HTML logger)
+      - name: Run Integration Tests
         working-directory: ./HundredX.API.IntegrationTests
         run: |
           dotnet test HundredX.API.IntegrationTests.csproj \
             -c Release \
             --no-build \
-            --logger "html;LogFileName=TestResults.html" \
+            --logger "trx;LogFileName=TestResults.trx" \
             --results-directory bin/TestResults
 
-      # Upload the HTML report
-      - name: Upload HTML Test Results
+      - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TestResultsHTML
-          path: |
-            HundredX.API.IntegrationTests/bin/TestResults/**/*.html
+          name: TestResults
+          path: HundredX.API.IntegrationTests/bin/TestResults
