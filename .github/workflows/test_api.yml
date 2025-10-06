@@ -1,20 +1,21 @@
 name: Run Integration Tests (Ubuntu built-in Postgres)
 
 on:
-  # Auto-run after your Windows CI completes successfully
+  # Auto-run after Windows CI completes successfully
   workflow_run:
     workflows: ["HundredX Continuous Integration"]
     types: [completed]
-  # Allow manual runs too
+  # Manual runs too
   workflow_dispatch:
 
 jobs:
   integration-tests:
+    # Proceed on manual dispatch OR successful CI completion
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
 
     env:
-      # App/test connection
+      # App/test connection string (DB name = hundredx)
       ConnectionStrings__Default: Host=localhost;Port=5432;Database=hundredx;Username=postgres;Password=postgres;Pooling=true
       # psql convenience
       PGUSER: postgres
@@ -29,23 +30,52 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      # If triggered by CI, pull your SQL scripts artifact for seeding
-      - name: Download SQLScripts artifact (from CI run)
+      # Helpful: list artifacts from the triggering CI run
+      - name: List artifacts in triggering run
+        if: github.event_name == 'workflow_run'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.payload.workflow_run.id;
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+              per_page: 100,
+            });
+            core.info(`Artifacts for run ${runId}: ${data.artifacts.map(a => a.name).join(', ') || '(none)'}`);
+
+      # Download all artifacts from the triggering CI run (kept in separate folders)
+      - name: Download artifacts from CI run
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v4
         with:
-          name: SQL
-          path: SQLScripts
           run-id: ${{ github.event.workflow_run.id }}
+          path: artifacts
+          merge-multiple: false
 
-      - name: Ensure psql client is present
+      # Prefer artifact named "SQL"; fallback to repo SQLScripts if present
+      - name: Locate SQL scripts
+        run: |
+          set -e
+          if [ -d "artifacts/SQL" ]; then
+            mkdir -p SQLScripts
+            cp -R artifacts/SQL/. SQLScripts/
+            echo "Using SQLScripts from artifact 'SQL'."
+          elif [ -d "SQLScripts" ]; then
+            echo "No 'SQL' artifact found; using SQLScripts from repo."
+          else
+            echo "No SQLScripts found in artifacts or repo; continuing without seeding."
+          fi
+
+      - name: Install psql client
         run: |
           sudo apt-get update -y
           sudo apt-get install -y postgresql-client
 
       - name: Start built-in PostgreSQL and prepare DB
         run: |
-          # Start the preinstalled Postgres service
+          # Start preinstalled Postgres service on Ubuntu runners
           sudo systemctl start postgresql
 
           # Wait for server readiness
@@ -54,11 +84,11 @@ jobs:
             sleep 1
           done
 
-          # Set a password for the 'postgres' role so TCP auth works over localhost
+          # Ensure 'postgres' user has a password for TCP auth
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
-          # Create the hundredx database (idempotent)
-          sudo -u postgres psql -d postgres -c "SELECT 1 FROM pg_database WHERE datname='hundredx';" | grep -q 1 \
+          # Create DB 'hundredx' if not exists
+          sudo -u postgres psql -d postgres -tc "SELECT 1 FROM pg_database WHERE datname='hundredx';" | grep -q 1 \
             || sudo -u postgres createdb hundredx
 
       - name: Seed database (if init.sql exists)
