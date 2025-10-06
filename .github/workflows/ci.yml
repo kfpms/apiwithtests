@@ -66,13 +66,3 @@ jobs:
         with:
           name: HundredX.API.IntegrationTests
           path: bin/API.Tests/
-
-      # Publish and upload console app
-      - name: Publish consoleapp1
-        run: msbuild "consoleapp1\consoleapp1.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\consoleapp1" /P:SelfContained=false /R /T:Build /T:Publish /V:m
-
-      - name: Upload console app
-        uses: actions/upload-artifact@v4
-        with:
-          name: consoleapp1
-          path: bin/consoleapp1/

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="fb09519e-4cc1-4479-a1de-fd91cf9935a0" name="karlp@KPGPT 2025-10-05 22:37:50" runUser="KPGPT\karlp" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-10-05T22:37:50.2005730-05:00" queuing="2025-10-05T22:37:50.2005734-05:00" start="2025-10-05T22:37:48.8847943-05:00" finish="2025-10-05T22:37:50.2041613-05:00" />
+  <TestSettings name="default" id="1c92618a-7dc2-4779-ad23-d50b818cd9aa">
+    <Deployment runDeploymentRoot="karlp_KPGPT_2025-10-05_22_37_50" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="04420d90-2557-438a-b0db-8b683f6b9119" testId="4685bc99-2e4d-07b3-2d20-871b0f5a0861" testName="HistoricalRecordsHttpTests.GetAll_Returns200" computerName="KPGPT" duration="00:00:00.0393841" startTime="2025-10-05T22:37:50.1131184-05:00" endTime="2025-10-05T22:37:50.1131189-05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="04420d90-2557-438a-b0db-8b683f6b9119" />
+    <UnitTestResult executionId="9703e57a-939f-4004-88ec-73b95837d94c" testId="50f9aebd-dc3d-e403-34de-6a8025488444" testName="HistoricalRecordsHttpTests.GetAll_Returns200_AndRowCountEquals3" computerName="KPGPT" duration="00:00:00.7791110" startTime="2025-10-05T22:37:50.0735503-05:00" endTime="2025-10-05T22:37:50.0735611-05:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9703e57a-939f-4004-88ec-73b95837d94c" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="HistoricalRecordsHttpTests.GetAll_Returns200_AndRowCountEquals3" storage="c:\users\karlp\workspaces\github_workflows\repos\apiwithtests\hundredx.api.integrationtests\bin\debug\net8.0\hundredx.api.integrationtests.dll" id="50f9aebd-dc3d-e403-34de-6a8025488444">
+      <Execution id="9703e57a-939f-4004-88ec-73b95837d94c" />
+      <TestMethod codeBase="C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\HundredX.API.IntegrationTests\bin\Debug\net8.0\HundredX.API.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HistoricalRecordsHttpTests" name="GetAll_Returns200_AndRowCountEquals3" />
+    </UnitTest>
+    <UnitTest name="HistoricalRecordsHttpTests.GetAll_Returns200" storage="c:\users\karlp\workspaces\github_workflows\repos\apiwithtests\hundredx.api.integrationtests\bin\debug\net8.0\hundredx.api.integrationtests.dll" id="4685bc99-2e4d-07b3-2d20-871b0f5a0861">
+      <Execution id="04420d90-2557-438a-b0db-8b683f6b9119" />
+      <TestMethod codeBase="C:\Users\karlp\workspaces\github_workflows\repos\apiwithtests\HundredX.API.IntegrationTests\bin\Debug\net8.0\HundredX.API.IntegrationTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HistoricalRecordsHttpTests" name="GetAll_Returns200" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="4685bc99-2e4d-07b3-2d20-871b0f5a0861" executionId="04420d90-2557-438a-b0db-8b683f6b9119" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="50f9aebd-dc3d-e403-34de-6a8025488444" executionId="9703e57a-939f-4004-88ec-73b95837d94c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="2" executed="2" passed="2" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.16)&#xD;
+[xUnit.net 00:00:00.05]   Discovering: HundredX.API.IntegrationTests&#xD;
+[xUnit.net 00:00:00.08]   Discovered:  HundredX.API.IntegrationTests&#xD;
+[xUnit.net 00:00:00.08]   Starting:    HundredX.API.IntegrationTests&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT h.cryptocurrency_id, h.record_date, h.market_cap, h.price, h.rank, h.supply, h.volume&#xD;
+      FROM hundredx.historical_record AS h&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT h.cryptocurrency_id, h.record_date, h.market_cap, h.price, h.rank, h.supply, h.volume&#xD;
+      FROM hundredx.historical_record AS h&#xD;
+[xUnit.net 00:00:00.94]   Finished:    HundredX.API.IntegrationTests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
