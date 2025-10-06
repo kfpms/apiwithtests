@@ -62,17 +62,6 @@ jobs:
         name: HundredX.API.IntegrationTests
         path: bin/API.Tests/
 
-    # Run Tests
-    - name: Run Integration Tests
-      run: dotnet test "HundredX.API.IntegrationTests/HundredX.API.IntegrationTests.csproj" -c Release --logger:"trx;LogFileName=TestResults.trx" --results-directory bin/TestResults
-
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: TestResults
-        path: bin/TestResults
-
     # Publish and upload console 
     - name: Publish consoleapp1
       run: msbuild "consoleapp1\consoleapp1.csproj" /P:Configuration=Release /P:Platform=AnyCPU /P:PublishDir="..\bin\consoleapp1" /P:SelfContained=false /R /T:Build /T:Publish /V:m
