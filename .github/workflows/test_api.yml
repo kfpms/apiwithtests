@@ -1,0 +1,118 @@
+name: Run Integration Tests
+
+on:
+  # Auto-run after the "HundredX Continuous Integration" workflow completes
+  workflow_run:
+    workflows: ["HundredX Continuous Integration"]
+    types: [completed]
+  # Allow manual runs too
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: windows-2022
+
+    env:
+      # DB settings
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDB: realcloud
+      PGPORT: 5432
+
+      # Connection string consumed by your app/tests (Npgsql)
+      ConnectionStrings__Default: >
+        Host=localhost;Port=5432;Database=realcloud;Username=postgres;Password=postgres;Pooling=true
+
+    steps:
+      - name: Checkout source (same commit as this workflow)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      # ── Bring over artifacts from the build workflow (SQL scripts, etc.) ─────────
+      - name: Download SQLScripts artifact from build run
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: SQL
+          path: SQLScripts
+          # Download from the triggering workflow run
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Ensure SQLScripts folder exists (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path SQLScripts)) {
+            New-Item -ItemType Directory -Path SQLScripts | Out-Null
+          }
+
+      # ── Install & start PostgreSQL natively on the Windows runner ────────────────
+      - name: Install PostgreSQL 16 (client + server)
+        shell: pwsh
+        run: |
+          choco install postgresql16 --params '/Password:postgres' -y --no-progress
+          $env:Path += ";C:\Program Files\PostgreSQL\16\bin"
+
+      - name: Init & start Postgres service (ephemeral data dir)
+        shell: pwsh
+        run: |
+          $pgdata = "C:\pgdata"
+          New-Item -ItemType Directory -Force -Path $pgdata | Out-Null
+          pg_ctl initdb -D $pgdata
+          pg_ctl start -D $pgdata -l "$pgdata\logfile"
+          # wait a bit for the server to be ready
+          for ($i=0; $i -lt 30; $i++) {
+            try {
+              psql -U $env:PGUSER -d postgres -c "select 1;" | Out-Null
+              break
+            } catch { Start-Sleep -Seconds 1 }
+          }
+          createdb -U $env:PGUSER $env:PGDB
+
+      # ── Optional: seed schema/data if your repo/artifacts include scripts ────────
+      - name: Seed database (if init.sql exists)
+        shell: pwsh
+        run: |
+          $script = "SQLScripts\init.sql"
+          if (Test-Path $script) {
+            psql -U $env:PGUSER -d $env:PGDB -f $script
+          } else {
+            Write-Host "No SQLScripts\init.sql found; skipping seed."
+          }
+
+      # ── .NET setup & test run ───────────────────────────────────────────────────
+      - name: Install .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build HundredX.sln -c Release --no-restore
+
+      - name: Run Integration Tests
+        run: >
+          dotnet test "HundredX.API.IntegrationTests/HundredX.API.IntegrationTests.csproj"
+          -c Release
+          --no-build
+          --logger "trx;LogFileName=TestResults.trx"
+          --results-directory bin/TestResults
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: bin/TestResults
+
+      # ── Clean shutdown ──────────────────────────────────────────────────────────
+      - name: Stop PostgreSQL
+        if: always()
+        shell: pwsh
+        run: |
+          pg_ctl stop -D C:\pgdata -m fast
